@@ -1,0 +1,16 @@
+---
+- name: Installer les outils de diagnostic
+  hosts: kubernetes
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Installer curl, jq et htop
+      ansible.builtin.apt:
+        name:
+          - curl
+          - jq
+          - htop
+        state: present
+        update_cache: true
+        cache_valid_time: 3600

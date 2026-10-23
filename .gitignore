@@ -1,0 +1,28 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Secrets
+*.pem
+*.key
+*.crt
+.env
+*.tfvars
+*.tfvars.json
+secrets.yaml
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+terraform/plan-review.txt

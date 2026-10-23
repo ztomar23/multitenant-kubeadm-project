@@ -1,0 +1,14 @@
+---
+- name: Vérifier les serveurs Kubernetes
+  hosts: kubernetes
+  become: false
+  gather_facts: true
+
+  tasks:
+    - name: Afficher les informations du serveur
+      ansible.builtin.debug:
+        msg: >-
+          Serveur {{ inventory_hostname }} :
+          hostname={{ ansible_facts['hostname'] }},
+          OS={{ ansible_facts['distribution'] }},
+          version={{ ansible_facts['distribution_version'] }}

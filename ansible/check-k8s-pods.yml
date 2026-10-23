@@ -1,0 +1,65 @@
+
+---
+- name: Contrôler la santé des pods Kubernetes
+  hosts: k8s_control_plane
+  gather_facts: false
+
+  tasks:
+    - name: Récupérer les pods de tous les namespaces
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - get
+          - pods
+          - -A
+          - -o
+          - json
+      register: kubectl_pods
+      changed_when: false
+
+    - name: Vérifier l'état des pods
+      ansible.builtin.assert:
+        that:
+          - item.status.phase in ['Running', 'Succeeded']
+        fail_msg: >-
+          Pod en anomalie :
+          {{ item.metadata.namespace }}/{{ item.metadata.name }},
+          état={{ item.status.phase }}
+        success_msg: >-
+          Pod {{ item.metadata.namespace }}/{{ item.metadata.name }}
+          : état {{ item.status.phase }}
+      loop: "{{ (kubectl_pods.stdout | from_json)['items'] }}"
+      loop_control:
+        label: "{{ item.metadata.namespace }}/{{ item.metadata.name }}"
+
+    - name: Vérifier que les conteneurs actifs sont prêts
+      ansible.builtin.assert:
+        that:
+          - >-
+            item.status.phase != 'Running' or
+            (
+              item.status.containerStatuses is defined and
+              (item.status.containerStatuses | length > 0) and
+              (
+                item.status.containerStatuses
+                | selectattr('ready', 'equalto', false)
+                | list
+                | length == 0
+              )
+            )
+        fail_msg: >-
+          Conteneur non prêt dans
+          {{ item.metadata.namespace }}/{{ item.metadata.name }}
+        success_msg: >-
+          Conteneurs prêts :
+          {{ item.metadata.namespace }}/{{ item.metadata.name }}
+      loop: "{{ (kubectl_pods.stdout | from_json)['items'] }}"
+      loop_control:
+        label: "{{ item.metadata.namespace }}/{{ item.metadata.name }}"
+
+    - name: Confirmer le nombre de pods contrôlés
+      ansible.builtin.debug:
+        msg: >-
+          Contrôle terminé :
+          {{ (kubectl_pods.stdout | from_json)['items'] | length }}
+          pods examinés.

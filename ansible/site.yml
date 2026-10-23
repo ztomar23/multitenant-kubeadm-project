@@ -1,0 +1,18 @@
+---
+- name: Installer les outils de diagnostic
+  ansible.builtin.import_playbook: configure-tools.yml
+
+- name: Vérifier les serveurs
+  ansible.builtin.import_playbook: check-servers.yml
+
+- name: Vérifier les services Kubernetes
+  ansible.builtin.import_playbook: check-k8s-services.yml
+
+- name: Vérifier le cluster Kubernetes
+  ansible.builtin.import_playbook: check-cluster.yml
+
+- name: Vérifier l'accès HTTPS aux applications
+  ansible.builtin.import_playbook: check-tenants.yml
+
+- name: Contrôler la santé des pods Kubernetes
+  ansible.builtin.import_playbook: check-k8s-pods.yml

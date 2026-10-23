@@ -1,0 +1,23 @@
+---
+- name: Vérifier l'accès HTTPS aux applications multi-tenant
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Tester les sites HTTPS
+      ansible.builtin.uri:
+        url: "{{ item }}"
+        method: GET
+        status_code: 200
+        validate_certs: true
+        return_content: false
+      loop:
+        - https://tenant-a.omarzt.tech
+        - https://tenant-b.omarzt.tech
+      register: tenant_checks
+
+    - name: Afficher les résultats
+      ansible.builtin.debug:
+        msg: "{{ item.item }} répond avec le code HTTP {{ item.status }}"
+      loop: "{{ tenant_checks.results }}"

@@ -1,0 +1,24 @@
+---
+- name: Vérifier les services Kubernetes
+  hosts: kubernetes
+  become: false
+  gather_facts: false
+
+  tasks:
+    - name: Vérifier containerd et kubelet
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - is-active
+          - "{{ item }}"
+      loop:
+        - containerd
+        - kubelet
+      register: service_status
+      changed_when: false
+      failed_when: false
+
+    - name: Afficher le statut des services
+      ansible.builtin.debug:
+        msg: "{{ item.item }} : {{ item.stdout | default('inconnu') }}"
+      loop: "{{ service_status.results }}"
