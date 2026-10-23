@@ -26,3 +26,5 @@ Thumbs.db
 .DS_Store
 
 terraform/plan-review.txt
+__pycache__/
+*.py[cod]
